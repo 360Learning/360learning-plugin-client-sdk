@@ -1,3 +1,5 @@
+import { requestTemporaryToken } from "./messaging";
+
 export class SDK {
 
     async init() {
@@ -5,7 +7,7 @@ export class SDK {
     }
 
     private async authenticate() {
-        // request temporary token & base url
+        const { apiBaseUrl, temporaryToken } = await requestTemporaryToken();
         // load access token
     }
 }
