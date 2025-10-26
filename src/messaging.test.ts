@@ -4,6 +4,28 @@ import { requestTemporaryToken } from "./messaging";
 
 describe("messaging", () => {
     describe("requestTemporaryToken", async () => {
+        beforeEach(() => {
+            vi.useFakeTimers();
+        });
+
+        afterEach(() => {
+            vi.useRealTimers();
+        });
+
+        it("should throw if no message is received in response within 1min", async () => {
+            const promise = requestTemporaryToken();
+            vi.advanceTimersByTime(60 * 1000);
+
+            await expect(promise).rejects.toThrow(undefined);
+        });
+
+        it("should not throw before 1min if no message is received in response", async () => {
+            const promise = requestTemporaryToken();
+            vi.advanceTimersByTime(59 * 1000);
+
+            expect(promise).not.rejects;
+        });
+
         it("should return a temporary token and the base url for the API", async () => {
             const temporaryToken = "fakeToken";
             const apiBaseUrl = "http://localhost:3000";
