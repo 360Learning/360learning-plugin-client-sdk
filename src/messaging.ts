@@ -10,7 +10,7 @@ export type TemporaryTokenPayload = {
 
 export async function requestTemporaryToken(): Promise<TemporaryTokenPayload> {
     return new Promise((resolve, reject) => {
-        setTimeout(() => reject(), MAX_LISTENER_TIME_IN_MS);
+        const timeoutId = setTimeout(onRequestTimeout, MAX_LISTENER_TIME_IN_MS);
         window.addEventListener("message", handleMessage, false);
 
         window.parent.postMessage({ type: PLUGIN_HANDSHAKE_EVENT_TYPE }, "*");
@@ -22,7 +22,14 @@ export async function requestTemporaryToken(): Promise<TemporaryTokenPayload> {
                 apiBaseUrl: event.data.apiBaseUrl,
                 temporaryToken: event.data.token
             });
+
+            clearTimeout(timeoutId);
             window.removeEventListener("message", handleMessage);
+        }
+
+        function onRequestTimeout() {
+            window.removeEventListener("message", handleMessage);
+            reject();
         }
     });
 }
