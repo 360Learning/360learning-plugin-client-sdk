@@ -7,11 +7,11 @@ import { SDK } from "./SDK";
 import type { MockInstance } from "vitest";
 
 describe("SDK", () => {
-    let requestTemporaryTokenStub: MockInstance<typeof messaging.requestTemporaryToken>;
+    let requestConnectionDetailsStub: MockInstance<typeof messaging.requestConnectionDetails>;
 
     beforeEach(() => {
         vi.spyOn(headers, "buildHeaders").mockReturnValue({});
-        requestTemporaryTokenStub = vi.spyOn(messaging, "requestTemporaryToken");
+        requestConnectionDetailsStub = vi.spyOn(messaging, "requestConnectionDetails");
     });
 
     afterEach(() => {
@@ -23,7 +23,7 @@ describe("SDK", () => {
         const temporaryToken = "a temporary token";
 
         beforeEach(() => {
-            requestTemporaryTokenStub.mockResolvedValue({
+            requestConnectionDetailsStub.mockResolvedValue({
                 apiBaseUrl: "http://localhost:3000",
                 temporaryToken
             });
@@ -36,7 +36,7 @@ describe("SDK", () => {
 
             await sdk.init();
 
-            expect(requestTemporaryTokenStub).toHaveBeenCalled();
+            expect(requestConnectionDetailsStub).toHaveBeenCalled();
             expect(global.fetch).toHaveBeenCalledWith("http://localhost:3000/api/v2/plugin/oauth2/client-token", {
                 body: `{"temporaryToken":"${temporaryToken}"}`,
                 headers: {},

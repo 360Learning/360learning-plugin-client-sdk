@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { requestTemporaryToken } from "./messaging";
+import { requestConnectionDetails } from "./messaging";
 
 describe("messaging", () => {
     describe("requestTemporaryToken", async () => {
@@ -13,14 +13,14 @@ describe("messaging", () => {
         });
 
         it("should throw if no message is received in response within 1min", async () => {
-            const promise = requestTemporaryToken();
+            const promise = requestConnectionDetails();
             vi.advanceTimersByTime(60 * 1000);
 
             await expect(promise).rejects.toThrow(undefined);
         });
 
         it("should not throw before 1min if no message is received in response", async () => {
-            const promise = requestTemporaryToken();
+            const promise = requestConnectionDetails();
             vi.advanceTimersByTime(59 * 1000);
 
             expect(promise).not.rejects;
@@ -30,9 +30,9 @@ describe("messaging", () => {
             const temporaryToken = "fakeToken";
             const apiBaseUrl = "http://localhost:3000";
 
-            const promise = requestTemporaryToken();
+            const promise = requestConnectionDetails();
             window.postMessage({
-                type: "plugin:temporaryToken",
+                type: "plugin:connectionDetails",
                 token: temporaryToken,
                 apiBaseUrl
             }, "*");

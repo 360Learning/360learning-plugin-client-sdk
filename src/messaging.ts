@@ -1,14 +1,14 @@
-const PLUGIN_TEMPORARY_TOKEN_EVENT_TYPE = "plugin:temporaryToken";
+const PLUGIN_TEMPORARY_TOKEN_EVENT_TYPE = "plugin:connectionDetails";
 const PLUGIN_HANDSHAKE_EVENT_TYPE = "plugin:handshake";
 
 const MAX_LISTENER_TIME_IN_MS = 1000 * 60;
 
-export type TemporaryTokenPayload = {
+export type ConnectionDetails = {
     apiBaseUrl: string;
     temporaryToken: string;
 };
 
-export async function requestTemporaryToken(): Promise<TemporaryTokenPayload> {
+export async function requestConnectionDetails(): Promise<ConnectionDetails> {
     return new Promise((resolve, reject) => {
         const timeoutId = setTimeout(onRequestTimeout, MAX_LISTENER_TIME_IN_MS);
         window.addEventListener("message", handleMessage, false);

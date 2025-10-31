@@ -1,5 +1,5 @@
 import { buildHeaders } from "./headers";
-import { requestTemporaryToken } from "./messaging";
+import { requestConnectionDetails } from "./messaging";
 
 const PLUGIN_AUTH_ENDPOINT = "api/v2/plugin/oauth2/client-token";
 
@@ -16,7 +16,7 @@ export class SDK {
     }
 
     private async authenticate() {
-        const { apiBaseUrl, temporaryToken } = await requestTemporaryToken();
+        const { apiBaseUrl, temporaryToken } = await requestConnectionDetails();
         this.apiBaseUrl = apiBaseUrl;
         await this.loadAccessToken(temporaryToken);
     }
