@@ -18,14 +18,14 @@ export class SDK {
     private async authenticate() {
         const { apiBaseUrl, temporaryToken } = await requestConnectionDetails();
         this.apiBaseUrl = apiBaseUrl;
-        await this.loadAccessToken(temporaryToken);
+        await this.connect(temporaryToken);
     }
 
     private buildApiUrl(relativeUrl: string) {
         return `${this.apiBaseUrl}/${relativeUrl}`;
     }
 
-    private async loadAccessToken(temporaryToken: string) {
+    private async connect(temporaryToken: string) {
         const clientAuthUrl = this.buildApiUrl(PLUGIN_AUTH_ENDPOINT);
         const access_token = await fetchAccessToken(clientAuthUrl, temporaryToken);
         this.accessToken = access_token;
