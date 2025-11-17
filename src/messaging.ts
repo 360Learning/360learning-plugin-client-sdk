@@ -1,5 +1,5 @@
 const PLUGIN_TEMPORARY_TOKEN_EVENT_TYPE = "plugin:connectionDetails";
-const PLUGIN_HANDSHAKE_EVENT_TYPE = "plugin:handshake";
+const PLUGIN_HANDSHAKE_EVENT_TYPE = "plugin:requestConnectionDetails";
 
 const MAX_LISTENER_TIME_IN_MS = 1000 * 60;
 
