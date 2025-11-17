@@ -13,9 +13,13 @@ export async function requestConnectionDetails(): Promise<ConnectionDetails> {
         const timeoutId = setTimeout(onRequestTimeout, MAX_LISTENER_TIME_IN_MS);
         window.addEventListener("message", handleMessage, false);
 
-        window.parent.postMessage({ type: PLUGIN_REQUEST_CONNECTION_DETAILS_EVENT_TYPE }, "*");
+        window.parent.postMessage({
+            type: PLUGIN_REQUEST_CONNECTION_DETAILS_EVENT_TYPE,
+            version: 1
+        }, "*");
 
         function handleMessage(event: MessageEvent) {
+            if (event.data.version !== 1) { return; }
             if (event.data.type !== PLUGIN_CONNECTION_DETAILS_EVENT_TYPE) { return; }
 
             resolve({

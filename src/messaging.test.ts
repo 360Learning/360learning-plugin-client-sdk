@@ -32,9 +32,10 @@ describe("messaging", () => {
 
             const promise = requestConnectionDetails();
             window.postMessage({
-                type: "plugin:connectionDetails",
+                apiBaseUrl,
                 token: temporaryToken,
-                apiBaseUrl
+                type: "plugin:connectionDetails",
+                version: 1
             }, "*");
 
             await expect(promise).resolves.toEqual({ temporaryToken, apiBaseUrl });
