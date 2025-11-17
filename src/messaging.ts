@@ -1,5 +1,5 @@
-const PLUGIN_TEMPORARY_TOKEN_EVENT_TYPE = "plugin:connectionDetails";
-const PLUGIN_HANDSHAKE_EVENT_TYPE = "plugin:requestConnectionDetails";
+const PLUGIN_CONNECTION_DETAILS_EVENT_TYPE = "plugin:connectionDetails";
+const PLUGIN_REQUEST_CONNECTION_DETAILS_EVENT_TYPE = "plugin:requestConnectionDetails";
 
 const MAX_LISTENER_TIME_IN_MS = 1000 * 60;
 
@@ -13,10 +13,10 @@ export async function requestConnectionDetails(): Promise<ConnectionDetails> {
         const timeoutId = setTimeout(onRequestTimeout, MAX_LISTENER_TIME_IN_MS);
         window.addEventListener("message", handleMessage, false);
 
-        window.parent.postMessage({ type: PLUGIN_HANDSHAKE_EVENT_TYPE }, "*");
+        window.parent.postMessage({ type: PLUGIN_REQUEST_CONNECTION_DETAILS_EVENT_TYPE }, "*");
 
         function handleMessage(event: MessageEvent) {
-            if (event.data.type !== PLUGIN_TEMPORARY_TOKEN_EVENT_TYPE) { return; }
+            if (event.data.type !== PLUGIN_CONNECTION_DETAILS_EVENT_TYPE) { return; }
 
             resolve({
                 apiBaseUrl: event.data.apiBaseUrl,
