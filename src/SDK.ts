@@ -1,4 +1,4 @@
-import { buildHeaders } from "./headers";
+import { buildAuthedHeaders, buildHeaders } from "./headers";
 import { requestConnectionDetails } from "./messaging";
 
 const PLUGIN_AUTH_ENDPOINT = "api/v2/plugin/oauth2/client-token";
@@ -29,6 +29,14 @@ export class SDK {
         const clientAuthUrl = this.buildApiUrl(PLUGIN_AUTH_ENDPOINT);
         const access_token = await fetchAccessToken(clientAuthUrl, temporaryToken);
         this.accessToken = access_token;
+    }
+
+    private async doFetch(url: string, options: { body?: string, method?: string } = {}) {
+        const response = await fetch(url, {
+            ...options,
+            headers: buildAuthedHeaders(this.accessToken)
+        });
+        return response;
     }
 }
 
