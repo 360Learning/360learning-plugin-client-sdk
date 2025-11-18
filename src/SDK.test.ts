@@ -96,15 +96,31 @@ describe("SDK", () => {
             expect(global.fetch).toHaveBeenNthCalledWith(2, "/api/me", { headers: {}, method: "GET" });
             expect(result).to.deep.equal(payload);
         });
+
+        it("should throw error on error received from the api", async () => {
+            vi.stubGlobal("fetch", vi.fn()
+                .mockImplementationOnce(() => buildErrorResponse(403, "forbidden"))
+            );
+            vi.spyOn(headers, "buildAuthedHeaders").mockImplementation(() => ({} as unknown));
+            const sdk = new SDK();
+
+            const promise = () => sdk.fetch("api/me", { method: "GET" });
+
+            await expect(promise).rejects.toThrowError("Error 403 received from the API");
+        });
     });
 });
 
 function buildUnauthorizedResponse() {
+    return buildErrorResponse(401, "unauthorized");
+}
+
+function buildErrorResponse(status: number, statusText: string) {
     return Promise.resolve({
         ok: false,
         json: () => Promise.resolve({  }),
-        status: 401,
-        statusText: 'unauthorized',
+        status,
+        statusText,
         clone: function () {
             return { ...this };
         }

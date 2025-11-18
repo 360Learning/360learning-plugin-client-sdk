@@ -1,3 +1,4 @@
+import { APIError } from "./errors";
 import { buildAuthedHeaders, buildHeaders } from "./headers";
 import { requestConnectionDetails } from "./messaging";
 
@@ -17,6 +18,9 @@ export class SDK {
         const url = this.buildApiUrl(relativeUrl);
         const response = await this.doFetch(url, options);
         const json = await response.json();
+        if (! response.ok) {
+            throw new APIError(response.status, json);
+        }
         return json as T;
     }
 
