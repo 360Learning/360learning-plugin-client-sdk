@@ -4,9 +4,21 @@ import { requestConnectionDetails } from "./messaging";
 const PLUGIN_AUTH_ENDPOINT = "api/v2/plugin/oauth2/client-token";
 const STATUS_CODE_UNAUTHORIZED_401 = 401;
 
+export type FetchOptions = {
+    body?: Record<string, unknown>;
+    method?: string;
+};
+
 export class SDK {
     private accessToken: string = "";
     private apiBaseUrl: string = "";
+
+    async fetch<T>(relativeUrl: string, options: FetchOptions = {}): Promise<T> {
+        const url = this.buildApiUrl(relativeUrl);
+        const response = await this.doFetch(url, options);
+        const json = await response.json();
+        return json as T;
+    }
 
     getAccessToken() {
         return this.accessToken;
