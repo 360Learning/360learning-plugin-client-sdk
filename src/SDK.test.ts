@@ -79,6 +79,28 @@ describe("SDK", () => {
             expect(result).to.deep.equal(payload);
         });
 
+        it("should send stringified body to the api", async () => {
+            vi.stubGlobal("fetch", vi.fn()
+                .mockImplementationOnce(() => buildAuthorizedResponse("access token"))
+            );
+            vi.spyOn(headers, "buildAuthedHeaders").mockImplementation(() => ({} as unknown));
+            const sdk = new SDK();
+
+            await sdk.fetch("api/me", {
+                method: "POST",
+                body: {
+                    field1: "value1",
+                    field2: "value2"
+                }
+            });
+
+            expect(global.fetch).toHaveBeenCalledWith("/api/me", {
+                headers: {},
+                method: "POST",
+                body: "{\"field1\":\"value1\",\"field2\":\"value2\"}"
+            });
+        });
+
         it("should relaunch authentication flow on authentication error received from the api", async () => {
             const payload = { field: "value" };
             const authenticateStub = vi.spyOn(SDK.prototype as unknown, "authenticate").mockImplementation(() => {});

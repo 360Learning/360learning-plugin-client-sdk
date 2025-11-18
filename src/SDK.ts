@@ -16,12 +16,23 @@ export class SDK {
 
     async fetch<T>(relativeUrl: string, options: FetchOptions = {}): Promise<T> {
         const url = this.buildApiUrl(relativeUrl);
-        const response = await this.doFetch(url, options);
+        const formattedOptions = formatOptions(options);
+        const response = await this.doFetch(url, formattedOptions);
         const json = await response.json();
         if (! response.ok) {
             throw new APIError(response.status, json);
         }
         return json as T;
+
+        function formatOptions(rawOptions: FetchOptions): { body?: string; method?: string } {
+            if (! ("body" in rawOptions) ) {
+                return rawOptions as { method?: string };
+            }
+            return {
+                ...rawOptions,
+                body: JSON.stringify(rawOptions.body)
+            };
+        }
     }
 
     getAccessToken() {
