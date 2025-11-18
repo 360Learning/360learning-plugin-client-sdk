@@ -2,6 +2,7 @@ import { buildAuthedHeaders, buildHeaders } from "./headers";
 import { requestConnectionDetails } from "./messaging";
 
 const PLUGIN_AUTH_ENDPOINT = "api/v2/plugin/oauth2/client-token";
+const STATUS_CODE_UNAUTHORIZED_401 = 401;
 
 export class SDK {
     private accessToken: string = "";
@@ -36,6 +37,13 @@ export class SDK {
             ...options,
             headers: buildAuthedHeaders(this.accessToken)
         });
+        if (! response.ok && response.status === STATUS_CODE_UNAUTHORIZED_401) {
+            await this.authenticate();
+            return fetch(url, {
+                ...options,
+                headers: buildAuthedHeaders(this.accessToken)
+            });
+        }
         return response;
     }
 }
