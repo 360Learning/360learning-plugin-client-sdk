@@ -7,14 +7,14 @@ const STATUS_CODE_UNAUTHORIZED_401 = 401;
 
 export type FetchOptions = {
     body?: Record<string, unknown>;
-    method?: string;
+    method: RequestInit["method"];
 };
 
 export class SDK {
     private accessToken: string = "";
     private apiBaseUrl: string = "";
 
-    async fetch<T>(relativeUrl: string, options: FetchOptions = {}): Promise<T> {
+    async fetch<T>(relativeUrl: string, options: FetchOptions = { method: undefined }): Promise<T> {
         const url = this.buildApiUrl(relativeUrl);
         const formattedOptions = formatOptions(options);
         const response = await this.doFetch(url, formattedOptions);
@@ -24,8 +24,8 @@ export class SDK {
         }
         return json as T;
 
-        function formatOptions(rawOptions: FetchOptions): { body?: string; method?: string } {
-            if (! ("body" in rawOptions) ) {
+        function formatOptions(rawOptions: FetchOptions): RequestInit {
+            if (! ("body" in rawOptions)) {
                 return rawOptions as { method?: string };
             }
             return {
@@ -59,7 +59,7 @@ export class SDK {
         this.accessToken = access_token;
     }
 
-    private async doFetch(url: string, options: { body?: string, method?: string } = {}) {
+    private async doFetch(url: string, options: RequestInit = {}) {
         const response = await fetch(url, {
             ...options,
             headers: buildAuthedHeaders(this.accessToken)
