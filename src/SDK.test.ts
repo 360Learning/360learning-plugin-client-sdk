@@ -56,6 +56,10 @@ describe("SDK", () => {
     });
 
     describe("fetch", () => {
+        beforeEach(() => {
+            vi.spyOn(headers, "buildAuthedHeaders").mockImplementation(() => ({} as unknown));
+        });
+
         it("should return data fetched from the api", async () => {
             const accessToken = "access token";
             const payload = { field: "value" };
@@ -83,7 +87,6 @@ describe("SDK", () => {
             vi.stubGlobal("fetch", vi.fn()
                 .mockImplementationOnce(() => buildAuthorizedResponse("access token"))
             );
-            vi.spyOn(headers, "buildAuthedHeaders").mockImplementation(() => ({} as unknown));
             const sdk = new SDK();
 
             await sdk.fetch("api/me", {
@@ -108,7 +111,6 @@ describe("SDK", () => {
                 .mockImplementationOnce(() => buildUnauthorizedResponse())
                 .mockImplementationOnce(() => buildApiResponse(payload))
             );
-            vi.spyOn(headers, "buildAuthedHeaders").mockImplementation(() => ({} as unknown));
             const sdk = new SDK();
 
             const result = await sdk.fetch("api/me", { method: "GET" });
@@ -123,7 +125,6 @@ describe("SDK", () => {
             vi.stubGlobal("fetch", vi.fn()
                 .mockImplementationOnce(() => buildErrorResponse(403, "forbidden"))
             );
-            vi.spyOn(headers, "buildAuthedHeaders").mockImplementation(() => ({} as unknown));
             const sdk = new SDK();
 
             const promise = () => sdk.fetch("api/me", { method: "GET" });
