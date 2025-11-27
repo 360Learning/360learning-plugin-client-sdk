@@ -113,7 +113,7 @@ describe("SDK", () => {
 
             const result = await sdk.fetch("api/me", { method: "GET" });
 
-            expect(authenticateStub).toHaveBeenCalled();
+            expect(authenticateStub).toHaveBeenCalledTimes(1);
             expect(global.fetch).toHaveBeenNthCalledWith(1, "/api/me", { headers: {}, method: "GET" });
             expect(global.fetch).toHaveBeenNthCalledWith(2, "/api/me", { headers: {}, method: "GET" });
             expect(result).to.deep.equal(payload);
