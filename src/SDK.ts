@@ -1,11 +1,40 @@
-import { buildHeaders } from "./headers";
+import { APIError } from "./errors";
+import { buildAuthedHeaders, buildHeaders } from "./headers";
 import { requestConnectionDetails } from "./messaging";
 
 const PLUGIN_AUTH_ENDPOINT = "api/v2/plugin/oauth2/client-token";
+const STATUS_CODE_UNAUTHORIZED_401 = 401;
+
+export type FetchOptions = {
+    body?: Record<string, unknown>;
+    method: RequestInit["method"];
+};
 
 export class SDK {
     private accessToken: string = "";
     private apiBaseUrl: string = "";
+
+    async fetch<T>(relativeUrl: string, options: FetchOptions = { method: undefined }): Promise<T> {
+        const url = this.buildApiUrl(relativeUrl);
+        const formattedOptions = formatOptions(options);
+        const response = await this.doFetch(url, formattedOptions);
+        const json = await response.json();
+        if (! response.ok) {
+            throw new APIError(response.status, json);
+        }
+        return json as T;
+
+        function formatOptions(rawOptions: FetchOptions): RequestInit {
+            if ("body" in rawOptions) {
+                return {
+                    ...rawOptions,
+                    body: JSON.stringify(rawOptions.body)
+                };
+            } else {
+                return { method: rawOptions.method };
+            }
+        }
+    }
 
     getAccessToken() {
         return this.accessToken;
@@ -29,6 +58,21 @@ export class SDK {
         const clientAuthUrl = this.buildApiUrl(PLUGIN_AUTH_ENDPOINT);
         const access_token = await fetchAccessToken(clientAuthUrl, temporaryToken);
         this.accessToken = access_token;
+    }
+
+    private async doFetch(url: string, options: RequestInit = {}) {
+        const response = await fetch(url, {
+            ...options,
+            headers: buildAuthedHeaders(this.accessToken)
+        });
+        if (! response.ok && response.status === STATUS_CODE_UNAUTHORIZED_401) {
+            await this.authenticate();
+            return fetch(url, {
+                ...options,
+                headers: buildAuthedHeaders(this.accessToken)
+            });
+        }
+        return response;
     }
 }
 

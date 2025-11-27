@@ -3,15 +3,26 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc --project tsconfig.build.json && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest"
   },
   "devDependencies": {
     "@eslint/js": "^9.38.0",
+    "@microsoft/api-extractor": "^7.55.0",
     "eslint": "^9.38.0",
     "globals": "^16.4.0",
     "happy-dom": "^20.0.8",

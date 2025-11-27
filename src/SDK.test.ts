@@ -54,14 +54,96 @@ describe("SDK", () => {
             await expect(promise).rejects.toThrowError("API authentication failed.");
         });
     });
+
+    describe("fetch", () => {
+        beforeEach(() => {
+            vi.spyOn(headers, "buildAuthedHeaders").mockImplementation(() => ({} as unknown));
+        });
+
+        it("should return data fetched from the api", async () => {
+            const accessToken = "access token";
+            const payload = { field: "value" };
+            vi.stubGlobal("fetch", vi.fn()
+                .mockImplementationOnce(() => buildAuthorizedResponse(accessToken))
+                .mockImplementationOnce(() => buildApiResponse(payload))
+            );
+            vi.spyOn(headers, "buildAuthedHeaders")
+                .mockImplementation((token: string) => ({ Authorization: `Bearer ${token}` } as unknown));
+            const sdk = new SDK();
+            await sdk.init();
+
+            const result = await sdk.fetch("api/me", {
+                method: "GET"
+            });
+
+            expect(global.fetch).toHaveBeenNthCalledWith(2, "http://localhost:3000/api/me", {
+                headers: { Authorization: `Bearer ${accessToken}` },
+                method: "GET"
+            });
+            expect(result).to.deep.equal(payload);
+        });
+
+        it("should send stringified body to the api", async () => {
+            vi.stubGlobal("fetch", vi.fn()
+                .mockImplementationOnce(() => buildAuthorizedResponse("access token"))
+            );
+            const sdk = new SDK();
+
+            await sdk.fetch("api/me", {
+                method: "POST",
+                body: {
+                    field1: "value1",
+                    field2: "value2"
+                }
+            });
+
+            expect(global.fetch).toHaveBeenCalledWith("/api/me", {
+                headers: {},
+                method: "POST",
+                body: "{\"field1\":\"value1\",\"field2\":\"value2\"}"
+            });
+        });
+
+        it("should relaunch authentication flow on authentication error received from the api", async () => {
+            const payload = { field: "value" };
+            const authenticateStub = vi.spyOn(SDK.prototype as unknown, "authenticate").mockImplementation(() => {});
+            vi.stubGlobal("fetch", vi.fn()
+                .mockImplementationOnce(() => buildUnauthorizedResponse())
+                .mockImplementationOnce(() => buildApiResponse(payload))
+            );
+            const sdk = new SDK();
+
+            const result = await sdk.fetch("api/me", { method: "GET" });
+
+            expect(authenticateStub).toHaveBeenCalledTimes(1);
+            expect(global.fetch).toHaveBeenNthCalledWith(1, "/api/me", { headers: {}, method: "GET" });
+            expect(global.fetch).toHaveBeenNthCalledWith(2, "/api/me", { headers: {}, method: "GET" });
+            expect(result).to.deep.equal(payload);
+        });
+
+        it("should throw error on error received from the api", async () => {
+            vi.stubGlobal("fetch", vi.fn()
+                .mockImplementationOnce(() => buildErrorResponse(403, "forbidden"))
+            );
+            const sdk = new SDK();
+
+            const promise = () => sdk.fetch("api/me", { method: "GET" });
+
+            await expect(promise).rejects.toThrowError("Error 403 received from the API");
+        });
+    });
 });
 
 function buildUnauthorizedResponse() {
+    return buildErrorResponse(401, "unauthorized");
+}
+
+function buildErrorResponse(status: number, statusText: string) {
     return Promise.resolve({
         ok: false,
         json: () => Promise.resolve({  }),
-        status: 401,
-        statusText: 'unauthorized',
+        status,
+        statusText,
         clone: function () {
             return { ...this };
         }

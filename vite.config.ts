@@ -13,5 +13,5 @@ export default defineConfig({
             fileName: "index"
         }
     },
-    plugins: [dts({ bundleTypes: true })]
+    plugins: [dts({ bundleTypes: true, exclude: "**/*.test.ts" })]
 });
