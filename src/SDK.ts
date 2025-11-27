@@ -25,13 +25,14 @@ export class SDK {
         return json as T;
 
         function formatOptions(rawOptions: FetchOptions): RequestInit {
-            if (! ("body" in rawOptions)) {
-                return rawOptions as { method?: string };
+            if ("body" in rawOptions) {
+                return {
+                    ...rawOptions,
+                    body: JSON.stringify(rawOptions.body)
+                };
+            } else {
+                return { method: rawOptions.method };
             }
-            return {
-                ...rawOptions,
-                body: JSON.stringify(rawOptions.body)
-            };
         }
     }
 
