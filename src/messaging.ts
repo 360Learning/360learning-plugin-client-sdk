@@ -1,5 +1,6 @@
 const PLUGIN_CONNECTION_DETAILS_EVENT_TYPE = "plugin:connectionDetails";
 const PLUGIN_REQUEST_CONNECTION_DETAILS_EVENT_TYPE = "plugin:requestConnectionDetails";
+const PLUGIN_REQUEST_EXTERNAL_NAVIGATION_EVENT_TYPE = "plugin:requestExternalNavigation";
 
 const MAX_LISTENER_TIME_IN_MS = 1000 * 60;
 
@@ -36,4 +37,12 @@ export async function requestConnectionDetails(): Promise<ConnectionDetails> {
             reject();
         }
     });
+}
+
+export async function requestExternalNavigation(url: string) {
+    window.parent.postMessage({
+        type: PLUGIN_REQUEST_EXTERNAL_NAVIGATION_EVENT_TYPE,
+        url,
+        version: 1
+    }, "*");
 }

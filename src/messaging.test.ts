@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { requestConnectionDetails } from "./messaging";
+import { requestConnectionDetails, requestExternalNavigation } from "./messaging";
 
 describe("messaging", () => {
     describe("requestTemporaryToken", async () => {
@@ -39,6 +39,26 @@ describe("messaging", () => {
             }, "*");
 
             await expect(promise).resolves.toEqual({ temporaryToken, apiBaseUrl });
+        });
+    });
+
+    describe("requestExternalNavigation", () => {
+        let postMessageSpy
+
+        beforeEach(() => {
+            postMessageSpy = vi.spyOn(window.parent, "postMessage");
+        });
+
+        it("should post message to request navigation", () => {
+            const url = "an url";
+
+            requestExternalNavigation(url);
+
+            expect(postMessageSpy).toHaveBeenCalledWith({
+                type: "plugin:requestExternalNavigation",
+                url,
+                version: 1
+            }, "*")
         });
     });
 });
