@@ -1,6 +1,6 @@
 import { APIError } from "./errors";
 import { buildAuthedHeaders, buildHeaders } from "./headers";
-import { requestConnectionDetails } from "./messaging";
+import { requestConnectionDetails, requestExternalNavigation } from "./messaging";
 
 const PLUGIN_AUTH_ENDPOINT = "api/v2/plugin/oauth2/client-token";
 const STATUS_CODE_UNAUTHORIZED_401 = 401;
@@ -42,6 +42,10 @@ export class SDK {
 
     async init() {
         await this.authenticate();
+    }
+
+    navigateToExternalUrl(url: string) {
+        requestExternalNavigation(url);
     }
 
     private async authenticate() {

@@ -3,7 +3,7 @@ A SDK for the client part of plugin developed for 360Learning products
 
 ## Getting started
 
-First, import sdk to your project : 
+First, import sdk to your project :
 ```
 yarn add 360learning-plugin-client-sdk
 
@@ -12,7 +12,7 @@ yarn add 360learning-plugin-client-sdk
 npm install 360learning-plugin-client-sdk
 ```
 
-Then create a sdk instance 
+Then create a sdk instance
 ```typescript
 import { createSDK } from “360learning-plugin-client-sdk”;
 
@@ -41,4 +41,14 @@ const sdk = createSDK();
 await sdk.init();
 
 const user = await sdk.fetch("api/v2/uaa/users/me", { method: "GET" });
+```
+
+### navigateToExternalUrl
+
+`navigateToExternalUrl` is used to trigger a navigation to an external website. This would make the page to leave the 360Learning website.
+
+```typescript
+const sdk = createSDK();
+
+sdk.navigateToUrl("http://github.com");
 ```

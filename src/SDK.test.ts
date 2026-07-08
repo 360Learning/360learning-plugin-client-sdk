@@ -8,6 +8,7 @@ import type { MockInstance } from "vitest";
 
 describe("SDK", () => {
     let requestConnectionDetailsStub: MockInstance<typeof messaging.requestConnectionDetails>;
+    let requestExternalNavigationStub: MockInstance<typeof messaging.requestExternalNavigation>;
 
     beforeEach(() => {
         vi.spyOn(headers, "buildHeaders").mockReturnValue({});
@@ -130,6 +131,21 @@ describe("SDK", () => {
             const promise = () => sdk.fetch("api/me", { method: "GET" });
 
             await expect(promise).rejects.toThrowError("Error 403 received from the API");
+        });
+    });
+
+    describe("navigateToExternalUrl", () => {
+        beforeEach(() => {
+            requestExternalNavigationStub = vi.spyOn(messaging, "requestExternalNavigation").mockReturnValue();
+        });
+
+        it("should request external navigation", () => {
+            const url = "an url";
+            const sdk = new SDK();
+
+            sdk.navigateToExternalUrl(url);
+
+            expect(requestExternalNavigationStub).toHaveBeenCalledWith(url);
         });
     });
 });
