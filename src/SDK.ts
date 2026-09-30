@@ -64,20 +64,20 @@ export class SDK {
     }
 
     private async fetchWithRetry(relativeUrl: string, options: RequestInit = {}) {
+        const response = await this.doFetch(relativeUrl, options);
+        if (! response.ok && response.status === STATUS_CODE_UNAUTHORIZED_401) {
+            await this.authenticate();
+            return await this.doFetch(relativeUrl, options);
+        }
+        return response;
+    }
+
+    private async doFetch(relativeUrl: string, options: RequestInit = {}) {
         const url = this.buildApiUrl(relativeUrl);
-        const response = await fetch(url, {
+        return await fetch(url, {
             ...options,
             headers: buildAuthedHeaders(this.accessToken)
         });
-        if (! response.ok && response.status === STATUS_CODE_UNAUTHORIZED_401) {
-            await this.authenticate();
-            const newUrl = this.buildApiUrl(relativeUrl);
-            return fetch(newUrl, {
-                ...options,
-                headers: buildAuthedHeaders(this.accessToken)
-            });
-        }
-        return response;
     }
 }
 
