@@ -17,7 +17,7 @@ export class SDK {
     async fetch<T>(relativeUrl: string, options: FetchOptions = { method: undefined }): Promise<T> {
         const url = this.buildApiUrl(relativeUrl);
         const formattedOptions = formatOptions(options);
-        const response = await this.doFetch(url, formattedOptions);
+        const response = await this.fetchWithRetry(url, formattedOptions);
         const json = await response.json();
         if (! response.ok) {
             throw new APIError(response.status, json);
@@ -64,7 +64,7 @@ export class SDK {
         this.accessToken = access_token;
     }
 
-    private async doFetch(url: string, options: RequestInit = {}) {
+    private async fetchWithRetry(url: string, options: RequestInit = {}) {
         const response = await fetch(url, {
             ...options,
             headers: buildAuthedHeaders(this.accessToken)
