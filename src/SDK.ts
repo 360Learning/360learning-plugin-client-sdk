@@ -71,7 +71,8 @@ export class SDK {
         });
         if (! response.ok && response.status === STATUS_CODE_UNAUTHORIZED_401) {
             await this.authenticate();
-            return fetch(url, {
+            const newUrl = this.buildApiUrl(relativeUrl);
+            return fetch(newUrl, {
                 ...options,
                 headers: buildAuthedHeaders(this.accessToken)
             });
