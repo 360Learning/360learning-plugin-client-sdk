@@ -15,9 +15,8 @@ export class SDK {
     private apiBaseUrl: string = "";
 
     async fetch<T>(relativeUrl: string, options: FetchOptions = { method: undefined }): Promise<T> {
-        const url = this.buildApiUrl(relativeUrl);
         const formattedOptions = formatOptions(options);
-        const response = await this.doFetch(url, formattedOptions);
+        const response = await this.fetchWithRetry(relativeUrl, formattedOptions);
         const json = await response.json();
         if (! response.ok) {
             throw new APIError(response.status, json);
@@ -64,19 +63,21 @@ export class SDK {
         this.accessToken = access_token;
     }
 
-    private async doFetch(url: string, options: RequestInit = {}) {
-        const response = await fetch(url, {
+    private async fetchWithRetry(relativeUrl: string, options: RequestInit = {}) {
+        const response = await this.doFetch(relativeUrl, options);
+        if (! response.ok && response.status === STATUS_CODE_UNAUTHORIZED_401) {
+            await this.authenticate();
+            return await this.doFetch(relativeUrl, options);
+        }
+        return response;
+    }
+
+    private async doFetch(relativeUrl: string, options: RequestInit = {}) {
+        const url = this.buildApiUrl(relativeUrl);
+        return await fetch(url, {
             ...options,
             headers: buildAuthedHeaders(this.accessToken)
         });
-        if (! response.ok && response.status === STATUS_CODE_UNAUTHORIZED_401) {
-            await this.authenticate();
-            return fetch(url, {
-                ...options,
-                headers: buildAuthedHeaders(this.accessToken)
-            });
-        }
-        return response;
     }
 }
 
